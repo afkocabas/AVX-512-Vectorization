@@ -87,13 +87,10 @@ int main(int argc, char *argv[]) {
      * which are active. Three lanes activated 5 lanes deactivated.
      */
 
-    /*
-     *
+    /* Since the only leftover elements should
+     * be operated, the arrays' base pointers should be shifted by "i" Where i
+     * is the number of total elements already operated.
      */
-
-    // Since the only leftover elements should
-    // be operated, the arrays' base pointers should be shifted by "i" Where i
-    // is the number of total elements already operated.
     auto vA = _mm512_maskz_load_epi64(mask, a + i);
     auto vB = _mm512_maskz_load_epi64(mask, b + i);
 
