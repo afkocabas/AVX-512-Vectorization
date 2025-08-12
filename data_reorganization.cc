@@ -20,3 +20,25 @@
  *     properly aligned.
  *
  */
+
+/* EXAMPLE */
+#include <array>
+#include <immintrin.h>
+
+const int ARR_SIZE = 1000;
+
+struct Point {
+  int32_t x, y, z;
+  Point() : x(0), y(0), z(0) {};
+  Point(int x, int y, int z) : x(x), y(y), z(z) {};
+};
+
+int main(int argc, char *argv[]) {
+  // Create point array and initiaze the points
+  std::array<Point, ARR_SIZE> points;
+  for (int i = 0; i < ARR_SIZE; ++i) {
+    Point point(i + argc, i + argc, i + argc);
+    points[i] = point;
+  }
+  return 0;
+}
