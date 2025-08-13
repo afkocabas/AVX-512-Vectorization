@@ -2,9 +2,9 @@
 set -euo pipefail
 
 CXX="g++"
-BASE_FLAGS="-Wall -Wextra -O3 -malign-double"
-SCALAR_FLAGS="-fno-tree-vectorize"
-VECTOR_FLAGS="-mavx512f" # or -march=native
+BASE_FLAGS="-Wall -Wextra -O3 -malign-double -mcmodel=medium"
+SCALAR_FLAGS="-fno-tree-vectorize -DUSE_AVX512=0"
+VECTOR_FLAGS="-mavx512f -DUSE_AVX512=1" # or -march=native
 BINARY_DIR="binaries"
 
 usage() {
