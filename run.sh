@@ -1,27 +1,51 @@
-CFLAGS=" -Wall -Wextra -malign-double -O3 -mavx512f"
-BINARY_DIR="binaries"
-CXX="g++"
+#!/usr/bin/env bash
+set -euo pipefail
 
-function usage() {
+CXX="g++"
+BASE_FLAGS="-Wall -Wextra -O3 -malign-double"
+SCALAR_FLAGS="-fno-tree-vectorize"
+VECTOR_FLAGS="-mavx512f" # or -march=native
+BINARY_DIR="binaries"
+
+usage() {
   echo "[ERROR]: No input file is provided" >&2
-  echo "Usage: ./run.sh [file.cc]"
+  echo "Usage: ./run.sh [file.cc] [scalar|vector|both]" >&2
   exit 1
 }
 
-function compile_and_run {
-  echo ${1}
+compile() {
+  local src="$1"
+  local out="$2"
+  shift 2
+  mkdir -p "$BINARY_DIR"
+  echo "Compiling $src -> $BINARY_DIR/$out"
   set -x
-  [[ -d ${BINARY_DIR} ]] || mkdir ${BINARY_DIR}
-  $CXX $CFLAGS $1 -o ./${BINARY_DIR}/$(basename $1 .cc)
-  ./${BINARY_DIR}/$(basename $1 .cc)
+  $CXX $BASE_FLAGS "$@" "$src" -o "$BINARY_DIR/$out"
+  set +x
 }
 
-function main {
-  if [[ $# -lt 1 ]]; then
-    usage
-    exit 1
+run_bin() {
+  echo "Running $1"
+  echo "--------------------"
+  "$1"
+  echo
+}
+
+main() {
+  [[ $# -ge 1 ]] || usage
+  local src="$1"
+  local mode="${2:-both}"
+  local base="$(basename "$src" .cc)"
+
+  if [[ "$mode" == "scalar" || "$mode" == "both" ]]; then
+    compile "$src" "${base}_scalar" $SCALAR_FLAGS
+    run_bin "./$BINARY_DIR/${base}_scalar"
   fi
-  compile_and_run ${1}
+
+  if [[ "$mode" == "vector" || "$mode" == "both" ]]; then
+    compile "$src" "${base}_avx512" $VECTOR_FLAGS
+    run_bin "./$BINARY_DIR/${base}_avx512"
+  fi
 }
 
 main "$@"
